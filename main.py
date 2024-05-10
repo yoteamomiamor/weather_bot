@@ -3,9 +3,11 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.bot import DefaultBotProperties
 
-from config import Config, load_config
-from handlers import other_handlers, user_handlers
-from keyboards import set_main_menu
+from configs import Config, load_config
+from handlers import common
+from middlewares import outer
+
+from locales.get_hub import get_hub
 
 import logging
 
@@ -30,11 +32,13 @@ async def main() -> None:
         )
     dp = Dispatcher()
 
-    dp.include_routers(user_handlers.rt, other_handlers.rt)
+    dp.include_routers(common.rt)
+    
+    dp.message.middleware(outer.TranslatorMiddleware())
 
-    await set_main_menu(bot)
+    # await set_main_menu(bot)
     await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, _translator_hub=get_hub(config.languages))
 
 
 if __name__ == '__main__':
