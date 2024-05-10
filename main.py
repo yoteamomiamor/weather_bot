@@ -3,7 +3,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.bot import DefaultBotProperties
 
-from config_data import Config, load_config
+from config import Config, load_config
 from handlers import other_handlers, user_handlers
 from keyboards import set_main_menu
 
