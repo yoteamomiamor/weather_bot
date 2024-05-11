@@ -1,14 +1,12 @@
-from aiogram import Router, F, Bot
+from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.filters import Command, CommandStart, StateFilter
+from aiogram.filters import Command, StateFilter
 from aiogram.fsm.state import default_state
 from aiogram.fsm.context import FSMContext
 
 from fluentogram import TranslatorRunner
 
-from keyboards.keyboards import (get_main_keyboard, get_location_keyboard,
-                                 get_weather_keyboard)
-from weather.get_weather import today_weather
+from keyboards.keyboards import get_location_keyboard, get_weather_keyboard
 from handlers.FSMStates import FSMMain
 
 
@@ -35,3 +33,8 @@ async def process_weather_command(message: Message, state: FSMContext,
         text=lang.select_weather(),
         reply_markup=get_weather_keyboard(lang)
     )
+
+
+@rt.message()
+async def process_anything(message: Message, lang: TranslatorRunner):
+    await message.answer(text=lang.invalid_message())
