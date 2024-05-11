@@ -12,3 +12,45 @@ help =
 
   /start - to start the bot
   /help - get help about this bot
+
+
+main =
+  select what you want to do...
+
+
+get_weather = 
+  weather
+
+select_weather = 
+  select date you want to know:
+
+weather_today = 
+  today
+
+weather_tomorrow =
+  tomorrow
+
+weather_week =
+  week
+
+
+set_location = 
+  set location
+
+wait_location = 
+  okay now send me your location...
+
+send_location =
+  send location
+
+
+cancel = 
+  cancel
+
+
+select_placeholder = 
+  select what you want to do...
+
+
+invalid_message =
+  sorry, i don't understand what you mean...
