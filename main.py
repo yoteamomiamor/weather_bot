@@ -4,7 +4,7 @@ from aiogram.enums import ParseMode
 from aiogram.client.bot import DefaultBotProperties
 
 from configs import Config, load_config
-from handlers import common, main_handlers
+from handlers import common, main_handlers, weather_handlers
 from middlewares import outer
 
 from locales.get_hub import get_hub
@@ -32,8 +32,7 @@ async def main() -> None:
         )
     dp = Dispatcher()
 
-    dp.include_routers(common.rt)
-    dp.include_routers(main_handlers.rt)
+    dp.include_routers(common.rt, main_handlers.rt, weather_handlers.rt)
     
     dp.message.middleware(outer.TranslatorMiddleware())
 
