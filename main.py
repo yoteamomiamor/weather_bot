@@ -36,7 +36,6 @@ async def main() -> None:
     dp.include_routers(main_handlers.rt)
     
     dp.message.middleware(outer.TranslatorMiddleware())
-    dp.callback_query.middleware(outer.TranslatorMiddleware())
 
     # await set_main_menu(bot)
     await bot.delete_webhook(drop_pending_updates=True)
