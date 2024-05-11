@@ -31,6 +31,6 @@ async def process_cancel_command(message: Message, state: FSMContext,
                                  lang: TranslatorRunner):
     await state.set_state(default_state)
     await message.answer(
-        text=lang.settings(),
+        text=lang.main(),
         reply_markup=get_main_keyboard(lang)
     )
