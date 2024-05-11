@@ -34,3 +34,8 @@ async def process_cancel_command(message: Message, state: FSMContext,
         text=lang.main(),
         reply_markup=get_main_keyboard(lang)
     )
+
+
+@rt.message()
+async def process_anything(message: Message, lang: TranslatorRunner):
+    await message.answer(text=lang.invalid_message())
