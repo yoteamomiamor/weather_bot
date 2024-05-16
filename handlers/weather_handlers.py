@@ -1,55 +1,35 @@
-from aiogram import Router, F, Bot
-from aiogram.types import CallbackQuery
-from aiogram.fsm.state import default_state
+from aiogram import Router, F
+from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
-from fluentogram import TranslatorRunner
+from aiogram_i18n import I18nContext, LazyProxy
 
-from weather.get_weather import today_weather, week_weather, tomorrow_weather
-from handlers.FSMStates import FSMMain
-
-from keyboards.callback_factory import WeatherCallback
+from weather.get_weather import *
+from handlers.states import MainFSM
 
 
 rt = Router()
 
 # today
-@rt.callback_query(WeatherCallback.filter(F.date == 0), 
-                   WeatherCallback.filter(F.days == 1),
-                   FSMMain.select_weather)
-async def process_today_callback(callback: CallbackQuery, bot: Bot, 
-                                 lang: TranslatorRunner):
-    await callback.answer()
-    await bot.send_message(
-        chat_id=callback.message.chat.id,
-        text=today_weather(lang)
+@rt.message(MainFSM.select_weather, F.text == LazyProxy('weather_today'))
+async def process_today_button(message: Message, state: FSMContext,
+                               i18n: I18nContext):
+    await message.answer(
+        text=get_today_weather(i18n)
     )
 
 # tomorrow
-@rt.callback_query(WeatherCallback.filter(F.date == 1), 
-                   WeatherCallback.filter(F.days == 1),
-                   FSMMain.select_weather)
-async def process_todmorrow_callback(callback: CallbackQuery, bot: Bot, 
-                                 lang: TranslatorRunner):
-    await callback.answer()
-    await bot.send_message(
-        chat_id=callback.message.chat.id,
-        text=tomorrow_weather(lang)
+@rt.message(MainFSM.select_weather, F.text == LazyProxy('weather_tomorrow'))
+async def process_tomorrow_button(message: Message, state: FSMContext,
+                               i18n: I18nContext):
+    await message.answer(
+        text=get_tomorrow_weather(i18n)
     )
 
 # week
-@rt.callback_query(WeatherCallback.filter(F.date == 0), 
-                   WeatherCallback.filter(F.days == 7),
-                   FSMMain.select_weather)
-async def process_week_callback(callback: CallbackQuery, bot: Bot, 
-                                 lang: TranslatorRunner):
-    await callback.answer()
-    await bot.send_message(
-        chat_id=callback.message.chat.id,
-        text=week_weather(lang)
+@rt.message(MainFSM.select_weather, F.text == LazyProxy('weather_week'))
+async def process_week_button(message: Message, state: FSMContext,
+                               i18n: I18nContext):
+    await message.answer(
+        text=get_week_weather(i18n)
     )
-
-
-@rt.callback_query()
-async def process_any_callback(callback: CallbackQuery, lang: TranslatorRunner):
-    callback.answer(text=lang.invalid_message())

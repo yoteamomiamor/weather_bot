@@ -1,13 +1,13 @@
-from fluentogram import TranslatorRunner
+from aiogram_i18n import I18nContext
 
 
-def today_weather(lang: TranslatorRunner) -> str:
+def get_today_weather(i18n: I18nContext) -> str:
     return 'today\'s weather is good'
 
 
-def tomorrow_weather(lang: TranslatorRunner) -> str:
+def get_tomorrow_weather(i18n: I18nContext) -> str:
     return 'tomorrow\'s weather is good'
 
 
-def week_weather(lang: TranslatorRunner) -> str:
+def get_week_weather(i18n: I18nContext) -> str:
     return 'weekly weather is good'

@@ -1,50 +1,29 @@
-from aiogram.types import (InlineKeyboardButton, 
-                           InlineKeyboardMarkup,
-                           KeyboardButton,
-                           ReplyKeyboardMarkup)
-from aiogram.utils.keyboard import InlineKeyboardBuilder
-
-from fluentogram import TranslatorRunner
-
-from keyboards.callback_factory import WeatherCallback
+from aiogram_i18n.types import KeyboardButton, ReplyKeyboardMarkup
 
 
-def get_main_keyboard(lang: TranslatorRunner) -> ReplyKeyboardMarkup:
+def get_main_keyboard(i18n) -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[[
-            KeyboardButton(text=lang.get_weather()),
-            KeyboardButton(text=lang.set_location())
+            KeyboardButton(text=i18n.get_weather()),
+            KeyboardButton(text=i18n.set_location(), request_location=True)
             ]],
         resize_keyboard=True,
-        input_field_placeholder=lang.select_placeholder()
+        input_field_placeholder=i18n.main()
     )
 
 
-def get_location_keyboard(lang: TranslatorRunner) -> ReplyKeyboardMarkup:
+def get_weather_keyboard(i18n) -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
-        keyboard=[[
-            KeyboardButton(text=lang.send_location(), request_location=True),
-            KeyboardButton(text=lang.cancel())
-        ]],
+        keyboard=[
+            [
+                KeyboardButton(text=i18n.weather_today()),
+                KeyboardButton(text=i18n.weather_tomorrow()),
+                KeyboardButton(text=i18n.weather_week()),
+                ],
+            [
+                KeyboardButton(text=i18n.cancel())
+            ]
+        ],
         resize_keyboard=True,
-        input_field_placeholder=lang.select_placeholder()
-    )
-
-
-def get_weather_keyboard(lang: TranslatorRunner) -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(
-        inline_keyboard=[[
-            InlineKeyboardButton(
-                text=lang.weather_today(), 
-                callback_data=WeatherCallback(date=0, days=1).pack()
-            ),
-            InlineKeyboardButton(
-                text=lang.weather_tomorrow(),
-                callback_data=WeatherCallback(date=1, days=1).pack()
-            ),
-            InlineKeyboardButton(
-                text=lang.weather_week(),
-                callback_data=WeatherCallback(date=0, days=7).pack()
-            )
-        ]]
+        input_field_placeholder=i18n.select_weather()
     )
