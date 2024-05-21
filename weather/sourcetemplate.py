@@ -3,7 +3,12 @@ def sourcetemplate(url: str):
     def get_query(**params) -> str:
         """Properly connects given parameters into a URL"""
         if params:
-            data = [f'{key}={params[key]}' for key in params]
+            data = []
+            for key in params:
+                if isinstance(params[key], (tuple, list)):
+                    data.append(f'{key}={",".join(params[key])}')
+                else:
+                    data.append(f'{key}={params[key]}')
             return f'{url}?{"&".join(data)}'
         return url
     return get_query
