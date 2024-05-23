@@ -13,6 +13,7 @@ class Bot:
 class Config:
     bot: Bot
     languages: str
+    db_url: str
 
 
 def load_config(path: Optional[str] = None) -> Config:
@@ -20,5 +21,6 @@ def load_config(path: Optional[str] = None) -> Config:
     env.read_env(path)
     return Config(
         bot=Bot(env('BOT_TOKEN')),
-        languages=(join('.', 'locales', 'languages'))
-        )
+        languages=(join('.', 'locales', 'languages')),
+        db_url=env('DB_URL')
+    )
