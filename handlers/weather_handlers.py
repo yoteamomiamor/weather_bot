@@ -15,7 +15,7 @@ rt = Router()
 async def process_today_button(message: Message, state: FSMContext,
                                i18n: I18nContext):
     await message.answer(
-        text=get_today_weather(i18n)
+        text=await get_today_weather(i18n)
     )
 
 # tomorrow
@@ -23,7 +23,7 @@ async def process_today_button(message: Message, state: FSMContext,
 async def process_tomorrow_button(message: Message, state: FSMContext,
                                i18n: I18nContext):
     await message.answer(
-        text=get_tomorrow_weather(i18n)
+        text=await get_tomorrow_weather(i18n)
     )
 
 # week
@@ -31,5 +31,5 @@ async def process_tomorrow_button(message: Message, state: FSMContext,
 async def process_week_button(message: Message, state: FSMContext,
                                i18n: I18nContext):
     await message.answer(
-        text=get_week_weather(i18n)
+        text=await get_week_weather(i18n)
     )
