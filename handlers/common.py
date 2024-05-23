@@ -33,6 +33,7 @@ async def process_help_command(message: Message, i18n: I18nContext):
 @rt.message(F.text == LazyProxy('cancel'))
 async def process_cancel_command(message: Message, state: FSMContext,
                                  i18n: I18nContext):
+    await state.set_state(MainFSM.menu)
     await message.answer(
         text=i18n.main(),
         reply_markup=get_main_keyboard(i18n)
@@ -60,4 +61,3 @@ async def process_sent_location(message: Message, state: FSMContext,
             longitude=message.location.longitude
         )
     )
-    
