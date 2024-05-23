@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 
 from aiogram_i18n import I18nContext, LazyProxy
 
-from keyboards.keyboards import get_main_keyboard, get_weather_keyboard
+from keyboards.keyboards import *
 from handlers.states import MainFSM
 from weather.get_weather import get_current_weather
 
@@ -47,6 +47,17 @@ async def process_weather_button(message: Message, state: FSMContext,
     await message.answer(
         text=i18n.select_weather(),
         reply_markup=get_weather_keyboard(i18n)
+    )
+
+
+@rt.message(Command('set_location'))
+@rt.message(F.text == LazyProxy('set_location'))
+async def process_location_button(message: Message, state: FSMContext,
+                                 i18n: I18nContext):
+    await state.set_state(MainFSM.set_location)
+    await message.answer(
+        text=i18n.wait_location(),
+        reply_markup=get_location_keyboard(i18n)
     )
 
 
