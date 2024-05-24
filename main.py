@@ -2,9 +2,8 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.bot import DefaultBotProperties
-from aiogram.utils.i18n import I18n, ConstI18nMiddleware
 
-from aiogram_i18n import I18nContext, I18nMiddleware, LazyProxy
+from aiogram_i18n import I18nMiddleware
 from aiogram_i18n.cores import FluentRuntimeCore
 
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
@@ -13,6 +12,7 @@ from configs import Config, load_config
 from handlers import common, weather_handlers
 from ui_commands import set_main_menu
 from middlewares.db import DBSessionMiddleware
+from db.base import Base
 
 import logging
 
@@ -31,8 +31,10 @@ async def main() -> None:
 
     config: Config = load_config()
 
-    engine = create_async_engine(config.db_url, echo=True)
+    engine = create_async_engine(config.db_url)
     sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     
     bot = Bot(
         token=config.bot.token,
