@@ -24,6 +24,9 @@ get_weather =
 select_weather = 
   select date you want to know:
 
+select_weather_placeholder =
+  select date you want to know:
+
 weather_today = 
   today ⬇️
 
@@ -38,10 +41,21 @@ set_location =
   set location 🔄
 
 wait_location = 
-  okay now send me your location...
+  okay now send me the location where you want 
+  to get weather or press the button below to
+  send me your current location
 
 send_location =
   send location 🚩
+
+send_location_placeholder =
+  send me location or press the button:
+
+location_is_set =
+  your location has been set sucessfully!
+  here is info about this location:
+   - latitude: { $latitude }
+   - longitude: { $longitude }
 
 
 cancel = 
@@ -53,7 +67,7 @@ invalid_message =
 
 
 weather_description =
-   {$weather_code ->
+   { $weather_code ->
     [0] clear sky
     [1] mainly clear
     [2] partly cloudy
@@ -88,6 +102,45 @@ weather_description =
 
 current_weather_info =
   current weather info:
-  🌡 temperature: { $temperature }{ $unit_temperature }
-  💧 precipitation: { $precipitation }{ $unit_precipitation }
+  🌡 temperature: { $temperature_2m }
+  💧 precipitation: { $precipitation }
   🌦 description: { weather_description }
+
+
+where =
+  your current set location is:
+   - latitude: { $latitude }
+   - longitude: { $longitude }
+
+
+weather_by_hours =
+  <b>{ $time_interval }</b>
+    - temperature: <b>{ $temperature_2m }</b>
+    - feels like: { $apparent_temperature }
+    - humidity: { $relative_humidity_2m }
+    - precipitation probability: <b>{ $precipitation_probability }</b>
+    - precipitation: { $precipitation }
+    - cloud cover: { $cloud_cover }
+    - visibility: { $visibility }
+    - wind speed: { $wind_speed_10m }
+    - description: <b>{ weather_description }</b>
+
+
+one_day_weather =
+  here is the weather for { $day_name }:
+
+week_weather =
+  here is the weather for the upcoming week:
+
+
+date_from_now =
+  { $day ->
+  [0] today
+  [1] tomorrow
+  [2] the day after tomorrow
+  [3] in three days
+  [4] in four days
+  [5] in five days
+  [6] in six days
+ *[other] another day
+  }
