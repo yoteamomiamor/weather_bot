@@ -3,11 +3,32 @@ import json
 from typing import Any
 from weather.sourcetemplate import sourcetemplate
 from aiogram_i18n import I18nContext
-from datetime import datetime
+import pandas as pd
+import logging
+
+logger = logging.getLogger(f'__main__.{__name__}')
 
 
 url = 'https://api.open-meteo.com/v1/forecast'
 get_query = sourcetemplate(url)
+
+
+def avg(seq: list | tuple) -> int:
+    """Returns rounded average number of the sequence"""
+    return round(sum(seq) / len(seq))
+
+
+def most_common(L: list) -> Any:
+    """Returns most common value from a list"""
+    freq_dict = {}.fromkeys(L, 0)
+    max_value = 0
+    max_key = 0
+    for key in L:
+        freq_dict[key] += 1
+        if freq_dict[key] > max_value:
+            max_value = freq_dict[key]
+            max_key = key
+    return max_key
 
 
 async def _get_weather(query: str) -> dict[str, Any]:
@@ -17,33 +38,103 @@ async def _get_weather(query: str) -> dict[str, Any]:
             return json.loads(await response.text())
 
 
+def weather_by_hours(i18n: I18nContext,
+                     data: dict[str, Any],
+                     start: int = 0, 
+                     end: int = 24) -> str:
+    """
+    Gets weather description by given time.
+    The default time values are the minimum
+    and maximum
+    """
+    date_slice = slice(start, end)
+    df = pd.DataFrame(data).iloc[1:]
+    weather_code = most_common(df.loc['weather_code'].hourly[date_slice])
+    df.hourly = df.hourly.apply(lambda S: avg(S[date_slice]))
+
+    df = df[['hourly_units', 'hourly']]
+    df = df.apply(lambda S: f"{S.hourly}{S.hourly_units}", axis=1)
+    df.loc['weather_code'] = weather_code
+    
+    return i18n.weather_by_hours(
+        start_time=f'{start % 24}:00',
+        end_time=f'{end % 24}:00',
+        **df.to_dict()
+    )
+
+
 async def get_current_weather(i18n: I18nContext, **params) -> str:
-    arguments = {
+    request_params = {
         'latitude': params['latitude'],
         'longitude': params['longitude'],
         'current': ['temperature_2m', 'precipitation', 'weather_code']
     }
     
-    data = await _get_weather(get_query(**arguments))
-    units = data['current_units']
-    current = data['current']
+    data = await _get_weather(get_query(**request_params))
 
     return i18n.current_weather_info(
-        temperature=current['temperature_2m'],
-        unit_temperature=units['temperature_2m'],
-        precipitation=current['precipitation'],
-        unit_precipitation=units['precipitation'],
-        weather_code=current['weather_code']
+        **{key: value for key, value in data['current'].items()}
+        
+        # temperature=current['temperature_2m'],
+        # precipitation=current['precipitation'],
+        # weather_code=current['weather_code']
     )
 
 
 async def get_today_weather(i18n: I18nContext, **params) -> str:
-    return 'today\'s weather is good'
+    request_params = {
+        'latitude': params['latitude'],
+        'longitude': params['longitude'],
+        'hourly': [
+            'temperature_2m',
+            'relative_humidity_2m',
+            'apparent_temperature',
+            'precipitation_probability',
+            'precipitation',
+            'weather_code',
+            'cloud_cover',
+            'visibility',
+            'wind_speed_10m'
+            ],
+        'forecast_days': 1
+    }
+    
+    data = await _get_weather(get_query(**request_params))
+    return (i18n.one_day_weather(day_name='today') + '\n' +
+            '\n'.join(
+                [weather_by_hours(i18n, data, start=i, end=i+6)
+                 for i in range(0, 24, 6)]
+            )
+    )
 
 
-async def get_tomorrow_weather(i18n: I18nContext) -> str:
-    return 'tomorrow\'s weather is good'
+async def get_tomorrow_weather(i18n: I18nContext, **params) -> str:
+    request_params = {
+        'latitude': params['latitude'],
+        'longitude': params['longitude'],
+        'hourly': [
+            'temperature_2m',
+            'relative_humidity_2m',
+            'apparent_temperature',
+            'precipitation_probability',
+            'precipitation',
+            'weather_code',
+            'cloud_cover',
+            'visibility',
+            'wind_speed_10m'
+            ],
+        'forecast_days': 2
+    }
+    
+    data = await _get_weather(get_query(**request_params))
+    return (i18n.one_day_weather(day_name='tomorrow') + '\n' +
+            '\n'.join(
+                [weather_by_hours(i18n, data, i, i+6)
+                 for i in range(24, 48, 6)]
+            )
+    )
 
 
 async def get_week_weather(i18n: I18nContext) -> str:
     return 'weekly weather is good'
+
