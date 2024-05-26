@@ -56,11 +56,12 @@ def weather_by_hours(i18n: I18nContext,
     df = df.apply(lambda S: f"{S.hourly}{S.hourly_units}", axis=1)
     df.loc['weather_code'] = weather_code
     
-    return i18n.weather_by_hours(
-        start_time=f'{start % 24}:00',
-        end_time=f'{end % 24}:00',
-        **df.to_dict()
-    )
+    if end - start == 24:
+        time_interval = i18n.date_from_now(day=start // 24)
+    else:
+        time_interval = f'{start % 24}:00 - {end % 24}:00'
+    
+    return i18n.weather_by_hours(time_interval=time_interval, **df.to_dict())
 
 
 async def get_current_weather(i18n: I18nContext, **params) -> str:
@@ -74,10 +75,6 @@ async def get_current_weather(i18n: I18nContext, **params) -> str:
 
     return i18n.current_weather_info(
         **{key: value for key, value in data['current'].items()}
-        
-        # temperature=current['temperature_2m'],
-        # precipitation=current['precipitation'],
-        # weather_code=current['weather_code']
     )
 
 
@@ -135,6 +132,29 @@ async def get_tomorrow_weather(i18n: I18nContext, **params) -> str:
     )
 
 
-async def get_week_weather(i18n: I18nContext) -> str:
-    return 'weekly weather is good'
+async def get_week_weather(i18n: I18nContext, **params) -> str:
+    request_params = {
+        'latitude': params['latitude'],
+        'longitude': params['longitude'],
+        'hourly': [
+            'temperature_2m',
+            'relative_humidity_2m',
+            'apparent_temperature',
+            'precipitation_probability',
+            'precipitation',
+            'weather_code',
+            'cloud_cover',
+            'visibility',
+            'wind_speed_10m'
+            ],
+        'forecast_days': 7
+    }
+    
+    data = await _get_weather(get_query(**request_params))
+    return (i18n.week_weather() + '\n' +
+            '\n'.join(
+                [weather_by_hours(i18n, data, i, i+24)
+                 for i in range(0, 24*7, 24)]
+            )
+    )
 

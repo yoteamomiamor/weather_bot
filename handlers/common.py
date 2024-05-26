@@ -118,7 +118,7 @@ async def process_where_command(message: Message, i18n: I18nContext,
 @rt.message(Command('menu'))
 async def process_menu_command(message: Message, i18n: I18nContext,
                                state: FSMContext):
-    state.set_state(MainFSM.menu)
+    await state.set_state(MainFSM.menu)
     await message.answer(
         text=i18n.main(),
         reply_markup=get_main_keyboard(i18n)

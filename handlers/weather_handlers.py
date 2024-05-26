@@ -59,6 +59,18 @@ async def process_tomorrow_button(message: Message, state: FSMContext,
 @rt.message(MainFSM.select_weather, F.text == LazyProxy('weather_week'))
 async def process_week_button(message: Message, state: FSMContext,
                                i18n: I18nContext, session: AsyncSession):
-    await message.answer(
-        text=await get_week_weather(i18n)
-    )
+    user_id = message.from_user.id
+    sql_query = (select(User.lat, User.long)
+                 .where(User.user_id == user_id)
+                 .limit(1))
+    data = await session.execute(sql_query)
+    await session.commit()
+    
+    for row in data:
+        await message.answer(
+            text=await get_week_weather(
+                i18n=i18n, 
+                latitude=row.lat, 
+                longitude=row.long
+            )
+        )
