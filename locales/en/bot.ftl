@@ -114,7 +114,7 @@ where =
 
 
 weather_by_hours =
-  <b>{ $time_interval }</b>
+  <b>{ $time }</b>
     - temperature: <b>{ $temperature_2m }</b>
     - feels like: { $apparent_temperature }
     - humidity: { $relative_humidity_2m }
@@ -143,4 +143,34 @@ date_from_now =
   [5] in five days
   [6] in six days
  *[other] another day
+  }
+
+
+weekday =
+  { $day ->
+    [0] Monday
+    [1] Tuesday
+    [2] Wednesday
+    [3] Thursday
+    [4] Friday
+    [5] Saturday
+    [6] Sunday
+   *[other] not set day
+  }
+
+months =
+  { $month ->
+    [1] January
+    [2] February 
+    [3] March
+    [4] April
+    [5] May
+    [6] June
+    [7] July
+    [8] August
+    [9] September
+    [10] October
+    [11] November
+    [12] December
+   *[other] unknown month
   }
