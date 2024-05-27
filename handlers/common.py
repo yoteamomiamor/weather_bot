@@ -18,7 +18,7 @@ from db.models import User
 rt = Router()
 
 
-@rt.message(StateFilter(default_state), CommandStart())
+@rt.message(CommandStart())
 async def process_start_command(message: Message, state: FSMContext,
                                 i18n: I18nContext):
     name = message.from_user.full_name
@@ -56,7 +56,7 @@ async def process_weather_button(message: Message, state: FSMContext,
     )
 
 
-@rt.message(StateFilter(MainFSM.menu), Command('set_location'))
+@rt.message(StateFilter(MainFSM.menu), Command('location'))
 @rt.message(StateFilter(MainFSM.menu), F.text == LazyProxy('set_location'))
 async def process_location_button(message: Message, state: FSMContext,
                                  i18n: I18nContext):
@@ -113,13 +113,3 @@ async def process_where_command(message: Message, i18n: I18nContext,
 
     for row in data:
         await message.answer(i18n.where(latitude=row.lat, longitude=row.long))
-
-
-@rt.message(Command('menu'))
-async def process_menu_command(message: Message, i18n: I18nContext,
-                               state: FSMContext):
-    await state.set_state(MainFSM.menu)
-    await message.answer(
-        text=i18n.main(),
-        reply_markup=get_main_keyboard(i18n)
-    )

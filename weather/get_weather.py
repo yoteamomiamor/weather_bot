@@ -5,6 +5,8 @@ from weather.sourcetemplate import sourcetemplate
 from aiogram_i18n import I18nContext
 import pandas as pd
 import logging
+from datetime import datetime
+from pprint import pprint
 
 logger = logging.getLogger(f'__main__.{__name__}')
 
@@ -47,21 +49,27 @@ def weather_by_hours(i18n: I18nContext,
     The default time values are the minimum
     and maximum
     """
-    date_slice = slice(start, end)
-    df = pd.DataFrame(data).iloc[1:]
-    weather_code = most_common(df.loc['weather_code'].hourly[date_slice])
-    df.hourly = df.hourly.apply(lambda S: avg(S[date_slice]))
+    weather_type = 'hourly'
+    weather = data[weather_type]
+    units = data[weather_type + '_units']
 
-    df = df[['hourly_units', 'hourly']]
-    df = df.apply(lambda S: f"{S.hourly}{S.hourly_units}", axis=1)
-    df.loc['weather_code'] = weather_code
-    
-    if end - start == 24:
-        time_interval = i18n.date_from_now(day=start // 24)
-    else:
-        time_interval = f'{start % 24}:00 - {end % 24}:00'
-    
-    return i18n.weather_by_hours(time_interval=time_interval, **df.to_dict())
+    weather_data = {}
+    for key in weather:
+        if key == 'time':
+            time = datetime.fromisoformat(weather[key][start])
+            weekday = i18n.weekday(day=time.weekday())
+            month = i18n.months(month=time.month)
+            if end - start == 24:
+                weather_data[key] = f'{time:{weekday}, %d {month} %Y}'
+            else:
+                weather_data[key] = (f'{start%24}:00 - {end%24}:00  |  '
+                                     f'{time:{weekday}, %d {month} %Y}')
+        elif key == 'weather_code':
+            weather_data[key] = most_common(weather[key][start:end])
+        else:
+            weather_data[key] = f'{avg(weather[key][start:end])}{units[key]}'
+
+    return i18n.weather_by_hours(**weather_data)
 
 
 async def get_current_weather(i18n: I18nContext, **params) -> str:
