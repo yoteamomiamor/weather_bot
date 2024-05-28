@@ -14,6 +14,9 @@ help =
   /help - get help about this bot
 
 
+menu =
+  menu
+
 main =
   select what you want to do...
 
@@ -174,3 +177,9 @@ months =
     [12] December
    *[other] unknown month
   }
+
+
+no_set_location =
+  sorry, but it seems like you haven't set the location yet ;(
+  
+  you can do it in the <b>{ menu } &gt; { set_location }</b> and send the location where you want to get weather
