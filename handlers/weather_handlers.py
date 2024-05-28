@@ -9,13 +9,19 @@ from sqlalchemy import select
 
 from db.models import User
 
-from weather.get_weather import *
+from weather.get_weather import (get_today_weather,
+                                 get_tomorrow_weather,
+                                 get_week_weather)
 from handlers.states import MainFSM
 
 from typing import Callable
+from logging import getLogger
 
 
 rt = Router()
+
+
+logger = getLogger(__name__)
 
 
 async def request_weather(message: Message, session: AsyncSession, 
@@ -25,14 +31,18 @@ async def request_weather(message: Message, session: AsyncSession,
                  .where(User.user_id == user_id)
                  .limit(1))
     data = await session.execute(sql_query)
+    data = data.first()
+    if not data:
+        return i18n.no_set_location()
+    
+    lat, long = data
     await session.commit()
     
-    for row in data:
-        return await weather_getter(
-                i18n=i18n, 
-                latitude=row.lat, 
-                longitude=row.long
-            )
+    return await weather_getter(
+            i18n=i18n, 
+            latitude=lat, 
+            longitude=long
+        )
 
 # today
 @rt.message(MainFSM.select_weather, F.text == LazyProxy('weather_today'))
