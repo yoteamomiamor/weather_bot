@@ -4,3 +4,4 @@ __pycache__/
 .env
 # just little tests in temp.py
 temp.py
+weather_bot.db
