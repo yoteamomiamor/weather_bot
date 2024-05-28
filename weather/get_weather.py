@@ -3,7 +3,6 @@ import json
 from typing import Any
 from weather.sourcetemplate import sourcetemplate
 from aiogram_i18n import I18nContext
-import pandas as pd
 import logging
 from datetime import datetime
 from pprint import pprint

@@ -8,6 +8,8 @@ from aiogram_i18n.cores import FluentRuntimeCore
 
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
+from aiogram.fsm.storage.redis import RedisStorage, Redis
+
 from configs import Config, load_config
 from handlers import common, weather_handlers
 from ui_commands import set_main_menu
@@ -45,7 +47,7 @@ async def main() -> None:
         core=FluentRuntimeCore(path="locales/{locale}")
     )
     
-    dp = Dispatcher()
+    dp = Dispatcher(storage=RedisStorage(Redis()))
 
     dp.update.middleware(DBSessionMiddleware(session_pool=sessionmaker))
     i18n_middleware.setup(dispatcher=dp)
